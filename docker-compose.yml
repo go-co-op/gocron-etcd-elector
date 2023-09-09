@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  docker-etcd:
+    hostname: etcd
+    image: bitnami/etcd:3.5.5
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://127.0.0.1:2379
+      - ETCDCTL_API=3
+    ports:
+      - "2379:2379"
+      - "2380:2380"

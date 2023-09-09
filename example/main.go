@@ -1,16 +1,3 @@
-# gocron-etcd-elector
-
-## install
-
-```
-go get github.com/go-co-op/gocron-etcd-elector
-```
-
-## usage
-
-Here is an example usage that would be deployed in multiple instances.
-
-```go
 package main
 
 import (
@@ -31,7 +18,11 @@ func main() {
 		DialTimeout: 3 * time.Second,
 	}
 
-	el := elector.NewElector(context.Background(), cfg, elector.WithTTL(10))
+	el, err := elector.NewElector(context.Background(), cfg, elector.WithTTL(10))
+	if err != nil {
+		panic(err)
+	}
+
 	go func() {
 		for {
 			err := el.Start("/gocron/elector")
@@ -64,4 +55,3 @@ func main() {
 
 	fmt.Println("exit")
 }
-```
