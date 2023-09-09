@@ -31,7 +31,11 @@ func main() {
 		DialTimeout: 3 * time.Second,
 	}
 
-	el := elector.NewElector(context.Background(), cfg, elector.WithTTL(10))
+	el, err := elector.NewElector(context.Background(), cfg, elector.WithTTL(10))
+	if err != nil {
+		panic(err)
+	}
+
 	go func() {
 		for {
 			err := el.Start("/gocron/elector")

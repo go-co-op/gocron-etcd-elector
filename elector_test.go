@@ -186,6 +186,7 @@ func TestElectorAcquireRace(t *testing.T) {
 		return counter
 	}
 
+	time.Sleep(2 * time.Second)
 	assert.Equal(t, 1, getCounter())
 
 	for idx, el := range elections {

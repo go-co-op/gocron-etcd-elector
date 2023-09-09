@@ -44,10 +44,10 @@ type Elector struct {
 	client  *clientv3.Client
 	id      string
 
-	mu        sync.RWMutex
-	closed    bool
-	isLeader  bool
-	leaderSid string
+	mu       sync.RWMutex
+	closed   bool
+	isLeader bool
+	leaderID string
 
 	logger func(msg ...interface{})
 }
@@ -94,7 +94,7 @@ func (e *Elector) GetLeaderID() string {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
-	return e.leaderSid
+	return e.leaderID
 }
 
 func (e *Elector) Stop() error {
@@ -122,22 +122,26 @@ func (e *Elector) IsLeader(_ context.Context) error {
 	return ErrNonLeader
 }
 
-func (e *Elector) setLeader(sid string) {
+func (e *Elector) setLeader(id string) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
 	e.isLeader = true
-	e.leaderSid = sid
+	e.leaderID = id
 }
 
-func (e *Elector) unsetLeader(sid string) {
+func (e *Elector) unsetLeader(id string) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
 	e.isLeader = false
-	e.leaderSid = sid
+	e.leaderID = id
 }
 
+// Start Start the election.
+// This method will keep trying the election. When the election is successful, set isleader to true.
+// If it fails, the election directory will be monitored until the election is successful.
+// The parameter electionPath is used to specify the etcd directory for the operation.
 func (e *Elector) Start(electionPath string) error {
 	if e.closed {
 		return ErrClosed
@@ -173,16 +177,18 @@ func (e *Elector) Start(electionPath string) error {
 				continue
 			}
 
-			val := string(resp.Kvs[0].Value)
-			if val != e.id {
-				e.unsetLeader(val)
-				e.logger("switch to non-leader, the current leader is ", val)
-				continue
-			}
+			for i := 0; i < len(resp.Kvs); i++ {
+				val := string(resp.Kvs[i].Value)
+				if val != e.id {
+					e.unsetLeader(val)
+					e.logger("switch to non-leader, the current leader is ", val)
+					continue
+				}
 
-			if !e.isLeader {
-				e.setLeader(val)
-				e.logger("switch to leader, the current instance is leader")
+				if !e.isLeader {
+					e.setLeader(val)
+					e.logger("switch to leader, the current instance is leader")
+				}
 			}
 
 		case <-e.ctx.Done():
