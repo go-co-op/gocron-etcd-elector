@@ -37,8 +37,8 @@ func main() {
 	s := gocron.NewScheduler(time.UTC)
 	s.WithDistributedElector(el)
 
-	s.Every("1s").Do(func() {
-		if el.IsLeader(context.TODO()) == nil {
+	_, _ = s.Every("1s").Do(func() {
+		if el.IsLeader(context.Background()) == nil {
 			fmt.Println("the current instance is leader")
 		} else {
 			fmt.Println("the current leader is", el.GetLeaderID())

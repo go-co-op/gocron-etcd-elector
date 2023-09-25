@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	mrand "math/rand"
 	"os"
 	"sync"
 	"time"
@@ -185,7 +186,7 @@ func (e *Elector) Start(electionPath string) error {
 					continue
 				}
 
-				if !e.isLeader {
+				if e.IsLeader(e.ctx) != nil { // is non-leader
 					e.setLeader(val)
 					e.logger("switch to leader, the current instance is leader")
 				}
@@ -202,6 +203,9 @@ func (e *Elector) Start(electionPath string) error {
 func getID() string {
 	hostname, _ := os.Hostname()
 	bs := make([]byte, 10)
-	rand.Read(bs)
+	_, err := rand.Read(bs)
+	if err != nil {
+		return fmt.Sprintf("%s-%d", hostname, mrand.Int63())
+	}
 	return fmt.Sprintf("%s-%x", hostname, bs)
 }

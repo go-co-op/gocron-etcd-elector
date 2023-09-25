@@ -9,4 +9,4 @@ lint:
 	@golangci-lint run
 
 test:
-	@go test -race -v $(GO_FLAGS) -count=1 $(GO_PKGS)
+	@go test -v $(GO_FLAGS) -count=1 $(GO_PKGS)

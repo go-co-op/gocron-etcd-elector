@@ -20,9 +20,16 @@ var (
 func TestGocronWithElector(t *testing.T) {
 	el, err := NewElector(context.Background(), testConfig, WithTTL(1))
 	assert.Equal(t, nil, err)
-	go el.Start(testElectionPath + "gocron_one")
+	go func() {
+		err := el.Start(testElectionPath + "gocron_one")
+		if err != nil {
+			t.Error(err)
+		}
+	}()
 
-	defer el.Stop()
+	defer func() {
+		_ = el.Stop()
+	}()
 
 	done := make(chan struct{}, 1)
 	counter := 0
@@ -62,7 +69,9 @@ func TestGocronWithMultipleElectors(t *testing.T) {
 		el, err := NewElector(context.Background(), testConfig, WithTTL(1))
 		assert.Equal(t, nil, err)
 
-		go el.Start(testElectionPath + "gocron_multi")
+		go func() {
+			_ = el.Start(testElectionPath + "gocron_multi")
+		}()
 
 		s := gocron.NewScheduler(time.UTC)
 		s.WithDistributedElector(el)
@@ -92,7 +101,7 @@ func TestGocronWithMultipleElectors(t *testing.T) {
 	}
 
 	for i := 0; i < workers; i++ {
-		elections[i].Stop()
+		_ = elections[i].Stop()
 		schedulers[i].Stop()
 	}
 }
@@ -108,9 +117,9 @@ func TestElectorSingleAcquire(t *testing.T) {
 	}()
 
 	time.Sleep(2 * time.Second)
-	assert.Equal(t, nil, el.IsLeader(nil))
+	assert.Equal(t, nil, el.IsLeader(context.Background()))
 	assert.Equal(t, el.GetLeaderID(), el.GetID())
-	el.Stop()
+	_ = el.Stop()
 
 	select {
 	case <-sig:
@@ -119,7 +128,7 @@ func TestElectorSingleAcquire(t *testing.T) {
 	}
 
 	// after elector.stop, current instance is not leader
-	assert.Equal(t, ErrNonLeader, el.IsLeader(nil))
+	assert.Equal(t, ErrNonLeader, el.IsLeader(context.Background()))
 }
 
 func TestElectorMultipleAcquire(t *testing.T) {
@@ -142,7 +151,7 @@ func TestElectorMultipleAcquire(t *testing.T) {
 
 	var leaderCounter int
 	for _, el := range elections {
-		if el.IsLeader(nil) == nil {
+		if el.IsLeader(context.Background()) == nil {
 			leaderCounter++
 		}
 	}
@@ -152,7 +161,7 @@ func TestElectorMultipleAcquire(t *testing.T) {
 
 	// stop all electors
 	for _, el := range elections {
-		el.Stop()
+		_ = el.Stop()
 	}
 }
 
@@ -192,7 +201,7 @@ func TestElectorAcquireRace(t *testing.T) {
 	for idx, el := range elections {
 		last := len(elections) - 1
 
-		el.Stop()
+		_ = el.Stop()
 
 		time.Sleep(3 * time.Second)
 		if idx == last {
@@ -206,7 +215,7 @@ func TestElectorAcquireRace(t *testing.T) {
 func TestElectorStop(t *testing.T) {
 	el, err := NewElector(context.Background(), testConfig)
 	assert.Equal(t, nil, err)
-	el.Stop()
+	_ = el.Stop()
 	err = el.Start(testElectionPath)
 	assert.Equal(t, err, ErrClosed)
 }
