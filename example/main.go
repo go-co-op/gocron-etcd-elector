@@ -1,16 +1,3 @@
-# gocron-etcd-elector
-
-## install
-
-```
-go get github.com/go-co-op/gocron-etcd-elector
-```
-
-## usage
-
-Here is an example usage that would be deployed in multiple instances.
-
-```go
 package main
 
 import (
@@ -50,8 +37,8 @@ func main() {
 	s := gocron.NewScheduler(time.UTC)
 	s.WithDistributedElector(el)
 
-	s.Every("1s").Do(func() {
-		if el.IsLeader(context.TODO()) == nil {
+	_, _ = s.Every("1s").Do(func() {
+		if el.IsLeader(context.Background()) == nil {
 			fmt.Println("the current instance is leader")
 		} else {
 			fmt.Println("the current leader is", el.GetLeaderID())
@@ -68,4 +55,3 @@ func main() {
 
 	fmt.Println("exit")
 }
-```
