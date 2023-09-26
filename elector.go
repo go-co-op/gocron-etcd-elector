@@ -3,12 +3,13 @@ package elector
 import (
 	"context"
 	"crypto/rand"
-	"errors"
 	"fmt"
 	mrand "math/rand"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/go-co-op/gocron"
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -18,6 +19,7 @@ import (
 var (
 	ErrNonLeader = errors.New("the elector is not leader")
 	ErrClosed    = errors.New("the elector is already closed")
+	ErrPingEtcd  = errors.New("ping etcd server timeout")
 )
 
 var (
@@ -64,7 +66,7 @@ func NewElectorWithClient(ctx context.Context, cli *clientv3.Client, options ...
 func newElector(ctx context.Context, cli *clientv3.Client, cfg clientv3.Config, options ...concurrency.SessionOption) (*Elector, error) {
 	var err error
 	if cli == nil {
-		cli, err = clientv3.New(cfg)
+		cli, err = clientv3.New(cfg) // async dial etcd
 		if err != nil {
 			return nil, err
 		}
@@ -79,6 +81,11 @@ func newElector(ctx context.Context, cli *clientv3.Client, cfg clientv3.Config, 
 		id:      getID(),
 		client:  cli,
 		logger:  nullLogger,
+	}
+
+	err = el.pingEtcd("/")
+	if err != nil {
+		return nil, err
 	}
 	return el, nil
 }
@@ -137,6 +144,17 @@ func (e *Elector) unsetLeader(id string) {
 
 	e.isLeader = false
 	e.leaderID = id
+}
+
+func (e *Elector) pingEtcd(electionPath string) error {
+	timeoutCtx, cancel := context.WithTimeout(e.ctx, 6*time.Second)
+	defer cancel()
+
+	_, _ = e.client.KV.Get(timeoutCtx, electionPath)
+	if timeoutCtx.Err() == context.DeadlineExceeded {
+		return ErrPingEtcd
+	}
+	return nil
 }
 
 // Start Start the election.

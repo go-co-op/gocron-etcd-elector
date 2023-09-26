@@ -17,6 +17,18 @@ var (
 	testElectionPath = "/gocron/elector/"
 )
 
+func TestGocronDialTimeout(t *testing.T) {
+	start := time.Now()
+	_, err := NewElector(context.Background(), Config{
+		Endpoints: []string{"http://127.0.0.1:2000"}, // invalid etcd
+	})
+	assert.Equal(t, ErrPingEtcd, err)
+
+	// 5< 6 < 7
+	assert.Greater(t, int(time.Since(start).Seconds()), 5)
+	assert.Less(t, int(time.Since(start).Seconds()), 8)
+}
+
 func TestGocronWithElector(t *testing.T) {
 	el, err := NewElector(context.Background(), testConfig, WithTTL(1))
 	assert.Equal(t, nil, err)
