@@ -3,7 +3,7 @@ module github.com/go-co-op/gocron-etcd-elector
 go 1.19
 
 require (
-	github.com/go-co-op/gocron v1.34.2
+	github.com/go-co-op/gocron v1.35.0
 	github.com/stretchr/testify v1.8.2
 	go.etcd.io/etcd/api/v3 v3.5.9 // indirect
 	go.etcd.io/etcd/client/v3 v3.5.9
