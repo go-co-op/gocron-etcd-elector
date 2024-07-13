@@ -10,7 +10,6 @@ go get github.com/go-co-op/gocron-etcd-elector
 ### gocron v2
 For a full production environment example with etcd clusters, you can see [gocron-etcd-elector-example](https://github.com/seriouspoop/gocron-etcd-elector-example)
 
-### gocron v1
 Here is an example usage that would be deployed in multiple instances.
 
 ```go
