@@ -189,9 +189,10 @@ func (e *Elector) Start(electionPath string) error {
 		e.unsetLeader("")
 	}()
 
+	ch := electionHandler.Observe(e.ctx)
 	for e.ctx.Err() == nil {
 		select {
-		case resp := <-electionHandler.Observe(e.ctx):
+		case resp := <-ch:
 			if len(resp.Kvs) == 0 {
 				continue
 			}
