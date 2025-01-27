@@ -32,7 +32,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-require github.com/go-co-op/gocron/v2 v2.14.2
+require github.com/go-co-op/gocron/v2 v2.15.0
 
 require (
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
