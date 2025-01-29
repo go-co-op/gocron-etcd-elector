@@ -7,8 +7,8 @@ toolchain go1.22.10
 require (
 	github.com/go-co-op/gocron v1.37.0
 	github.com/stretchr/testify v1.10.0
-	go.etcd.io/etcd/api/v3 v3.5.17 // indirect
-	go.etcd.io/etcd/client/v3 v3.5.17
+	go.etcd.io/etcd/api/v3 v3.5.18 // indirect
+	go.etcd.io/etcd/client/v3 v3.5.18
 )
 
 require (
@@ -23,8 +23,8 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.17.0 // indirect
-	golang.org/x/net v0.33.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/net v0.34.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/genproto v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/grpc v1.59.0 // indirect
@@ -37,7 +37,7 @@ require github.com/go-co-op/gocron/v2 v2.15.0
 require (
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
 	github.com/jonboulle/clockwork v0.4.0 // indirect
-	go.etcd.io/etcd/client/pkg/v3 v3.5.17 // indirect
+	go.etcd.io/etcd/client/pkg/v3 v3.5.18 // indirect
 	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230822172742-b8732ec3820d // indirect
