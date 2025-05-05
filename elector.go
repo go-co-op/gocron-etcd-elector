@@ -11,7 +11,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/go-co-op/gocron"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.etcd.io/etcd/client/v3/concurrency"
 )
@@ -48,8 +47,6 @@ type (
 )
 
 func nullLogger(_ ...interface{}) {}
-
-var _ gocron.Elector = (*Elector)(nil)
 
 // Elector is a distributed leader election implementation using etcd.
 type Elector struct {

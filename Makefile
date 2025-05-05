@@ -10,3 +10,4 @@ lint:
 
 test:
 	@go test -v $(GO_FLAGS) -count=1 $(GO_PKGS)
+	@cd tests && go test -v $(GO_FLAGS) -count=1
