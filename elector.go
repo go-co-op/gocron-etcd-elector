@@ -17,27 +17,41 @@ import (
 )
 
 var (
+	// ErrNonLeader - the instance is not the leader
 	ErrNonLeader = errors.New("the elector is not leader")
-	ErrClosed    = errors.New("the elector is already closed")
-	ErrPingEtcd  = errors.New("ping etcd server timeout")
+	// ErrClosed - the elector is already closed
+	ErrClosed = errors.New("the elector is already closed")
+	// ErrPingEtcd - ping etcd server timeout
+	ErrPingEtcd = errors.New("ping etcd server timeout")
 )
 
+// Vars and comments are copied from etcd clientv3
 var (
-	// alias options
-	WithTTL     = concurrency.WithTTL
+	// WithTTL configures the session's TTL in seconds.
+	// If TTL is <= 0, the default 60 seconds TTL will be used.
+	WithTTL = concurrency.WithTTL
+	// WithContext assigns a context to the session instead of defaulting to
+	// using the client context. This is useful for canceling NewSession and
+	// Close operations immediately without having to close the client. If the
+	// context is canceled before Close() completes, the session's lease will be
+	// abandoned and left to expire instead of being revoked.
 	WithContext = concurrency.WithContext
-	WithLease   = concurrency.WithLease
+	// WithLease specifies the existing leaseID to be used for the session.
+	// This is useful in process restart scenario, for example, to reclaim
+	// leadership from an election prior to restart.
+	WithLease = concurrency.WithLease
 )
 
 type (
-	// alias clientv3.config
+	// Config is an alias clientv3.config
 	Config = clientv3.Config
 )
 
-func nullLogger(msg ...interface{}) {}
+func nullLogger(_ ...interface{}) {}
 
 var _ gocron.Elector = (*Elector)(nil)
 
+// Elector is a distributed leader election implementation using etcd.
 type Elector struct {
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -55,10 +69,12 @@ type Elector struct {
 	logger func(msg ...interface{})
 }
 
+// NewElector creates a new Elector instance with the given etcd config and options.
 func NewElector(ctx context.Context, cfg clientv3.Config, options ...concurrency.SessionOption) (*Elector, error) {
 	return newElector(ctx, nil, cfg, options...)
 }
 
+// NewElectorWithClient creates a new Elector instance with the given etcd client and options.
 func NewElectorWithClient(ctx context.Context, cli *clientv3.Client, options ...concurrency.SessionOption) (*Elector, error) {
 	return newElector(ctx, cli, Config{}, options...)
 }
@@ -90,14 +106,17 @@ func newElector(ctx context.Context, cli *clientv3.Client, cfg clientv3.Config, 
 	return el, nil
 }
 
+// SetLogger sets the logger function for the elector.
 func (e *Elector) SetLogger(fn func(msg ...interface{})) {
 	e.logger = fn
 }
 
+// GetID returns the elector ID.
 func (e *Elector) GetID() string {
 	return e.id
 }
 
+// GetLeaderID returns the current leader ID.
 func (e *Elector) GetLeaderID() string {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -105,6 +124,7 @@ func (e *Elector) GetLeaderID() string {
 	return e.leaderID
 }
 
+// Stop stops the elector and closes the etcd client.
 func (e *Elector) Stop() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -119,6 +139,7 @@ func (e *Elector) Stop() error {
 	return nil
 }
 
+// IsLeader checks if the current instance is the leader.
 func (e *Elector) IsLeader(_ context.Context) error {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -150,7 +171,7 @@ func (e *Elector) pingEtcd(electionPath string) error {
 	timeoutCtx, cancel := context.WithTimeout(e.ctx, 6*time.Second)
 	defer cancel()
 
-	_, _ = e.client.KV.Get(timeoutCtx, electionPath)
+	_, _ = e.client.Get(timeoutCtx, electionPath)
 	if timeoutCtx.Err() == context.DeadlineExceeded {
 		return ErrPingEtcd
 	}

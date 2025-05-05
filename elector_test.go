@@ -144,8 +144,8 @@ func TestElectorSingleAcquire(t *testing.T) {
 }
 
 func TestElectorMultipleAcquire(t *testing.T) {
-	var elections = []*Elector{}
-	var workers = 3
+	elections := []*Elector{}
+	workers := 3
 
 	// start all electors
 	for i := 0; i < workers; i++ {
@@ -178,8 +178,8 @@ func TestElectorMultipleAcquire(t *testing.T) {
 }
 
 func TestElectorAcquireRace(t *testing.T) {
-	var elections = []*Elector{}
-	var workers = 3
+	elections := []*Elector{}
+	workers := 3
 
 	// start all electors
 	for i := 0; i < workers; i++ {
