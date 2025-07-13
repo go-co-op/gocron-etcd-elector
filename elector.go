@@ -210,6 +210,9 @@ func (e *Elector) Start(electionPath string) error {
 	ch := electionHandler.Observe(e.ctx)
 	for e.ctx.Err() == nil {
 		select {
+		case <-session.Done():
+			e.logger("session closed, attempting to restart elector")
+			return e.Start(electionPath)
 		case resp := <-ch:
 			if len(resp.Kvs) == 0 {
 				continue
