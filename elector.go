@@ -196,6 +196,7 @@ func (e *Elector) Start(electionPath string) error {
 			// If the election cannot be obtained, it will be blocked until the election can be obtained.
 			if err := electionHandler.Campaign(e.ctx, e.id); err != nil {
 				e.logger(fmt.Errorf("election failed to campaign, err: %w", err))
+				return
 			}
 
 			time.Sleep(100 * time.Millisecond)
@@ -210,7 +211,14 @@ func (e *Elector) Start(electionPath string) error {
 	ch := electionHandler.Observe(e.ctx)
 	for e.ctx.Err() == nil {
 		select {
-		case resp := <-ch:
+		case <-session.Done():
+			e.logger("session closed, attempting to restart elector")
+			return e.Start(electionPath)
+		case resp, ok := <-ch:
+			if !ok {
+				e.logger("election channel closed, attempting to restart elector")
+				return e.Start(electionPath)
+			}
 			if len(resp.Kvs) == 0 {
 				continue
 			}
