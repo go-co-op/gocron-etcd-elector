@@ -196,6 +196,7 @@ func (e *Elector) Start(electionPath string) error {
 			// If the election cannot be obtained, it will be blocked until the election can be obtained.
 			if err := electionHandler.Campaign(e.ctx, e.id); err != nil {
 				e.logger(fmt.Errorf("election failed to campaign, err: %w", err))
+				return
 			}
 
 			time.Sleep(100 * time.Millisecond)
