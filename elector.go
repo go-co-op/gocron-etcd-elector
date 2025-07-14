@@ -214,7 +214,11 @@ func (e *Elector) Start(electionPath string) error {
 		case <-session.Done():
 			e.logger("session closed, attempting to restart elector")
 			return e.Start(electionPath)
-		case resp := <-ch:
+		case resp, ok := <-ch:
+			if !ok {
+				e.logger("election channel closed, attempting to restart elector")
+				return e.Start(electionPath)
+			}
 			if len(resp.Kvs) == 0 {
 				continue
 			}
