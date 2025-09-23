@@ -2,8 +2,6 @@ module github.com/go-co-op/gocron-etcd-elector
 
 go 1.23.0
 
-toolchain go1.24.2
-
 require (
 	github.com/stretchr/testify v1.11.1
 	go.etcd.io/etcd/api/v3 v3.6.4 // indirect
