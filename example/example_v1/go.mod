@@ -1,6 +1,6 @@
 module main
 
-go 1.24.2
+go 1.25
 
 require (
 	github.com/go-co-op/gocron v1.37.0
