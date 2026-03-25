@@ -1,6 +1,6 @@
 module main
 
-go 1.24.2
+go 1.25
 
 require (
 	github.com/go-co-op/gocron-etcd-elector v0.0.0-20250314020010-d141eb8e1a8c
