@@ -21,7 +21,7 @@ jobs:
           - 2380:2380
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9.2.0
         with:
